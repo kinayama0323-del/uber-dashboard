@@ -178,6 +178,7 @@ export default async function StoreDetailPage({
       </main>
     );
   }
+ const isCurrentMonth = store.month === months[0];
 const qualityJudge = getQualityJudge(store);
 const improvementComments =
   getImprovementComments(store);
@@ -232,15 +233,11 @@ const improvementComments =
       <header className="bg-green-600 text-white p-8">
         <p className="text-sm opacity-90">月次実績レポート</p>
         <h1 className="text-3xl font-bold mt-2">{store.storeName}</h1>
-        <div className="mt-2 flex items-center gap-3 text-white/90">
-  <span>{store.month}</span>
-
-  {store.closeDate && (
-    <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-      {store.closeDate}
-    </span>
-  )}
-</div>
+       
+        <p className="mt-2 opacity-90">
+  {store.month}
+  {store.closeDate && `　${store.closeDate}`}
+</p>
       </header>
 
       <div className="max-w-7xl mx-auto p-8">
@@ -251,11 +248,25 @@ const improvementComments =
         />
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-500">総売上</p>
-            <p className="text-3xl font-bold">
-              ¥{store.totalSales.toLocaleString()}
-            </p>
-          </div>
+  <p className="text-gray-500">
+    {isCurrentMonth ? "予測売上" : "総売上"}
+  </p>
+
+  <p className="text-3xl font-bold">
+    ¥
+    {(isCurrentMonth
+      ? store.forecastSales
+      : store.totalSales
+    ).toLocaleString()}
+  </p>
+
+  {isCurrentMonth && (
+    <p className="text-sm text-gray-500 mt-2">
+      （{store.closeDate}実績：
+      ¥{store.totalSales.toLocaleString()}）
+    </p>
+  )}
+</div>
           
           <div className="bg-white rounded-xl shadow p-6">
             <p className="text-gray-500">平均評価</p>
