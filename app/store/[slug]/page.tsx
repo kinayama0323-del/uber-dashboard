@@ -232,7 +232,10 @@ const improvementComments =
       <header className="bg-green-600 text-white p-8">
         <p className="text-sm opacity-90">月次実績レポート</p>
         <h1 className="text-3xl font-bold mt-2">{store.storeName}</h1>
-        <p className="mt-2 opacity-90">{store.month}</p>
+        <p className="mt-2 opacity-90">
+  {store.month}
+  {store.closeDate && `　${store.closeDate}`}
+</p>
       </header>
 
       <div className="max-w-7xl mx-auto p-8">

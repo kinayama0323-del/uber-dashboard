@@ -44,6 +44,9 @@ export default async function Home({
             months={months}
             selectedMonth={selectedMonth}
           />
+          <p className="text-sm text-gray-500 mb-6">
+  集計時点：{stores[0]?.closeDate}
+</p>
 
           <RankingCards
             stores={stores}

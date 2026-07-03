@@ -9,6 +9,7 @@ export type Store = {
   owner: string;
   storeName: string;
   month: string;
+  closeDate: string;
   totalSales: number;
   averageRating: number;
   commitJudge: string;
@@ -59,6 +60,7 @@ export async function getStoresFromSheet(): Promise<Store[]> {
         owner: String(getValue(row, "owner")).trim(),
         storeName: String(getValue(row, "storeName")).trim(),
         month,
+        closeDate: String(getValue(row, "closeDate")).trim(),
         totalSales: toNumber(getValue(row, "totalSales")),
         averageRating: toNumber(getValue(row, "averageRating")),
         commitJudge: String(getValue(row, "commitJudge")).trim(),
