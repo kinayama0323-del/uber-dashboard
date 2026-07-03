@@ -40,30 +40,20 @@ export default async function Home({
         <div className="max-w-7xl mx-auto p-8">
           <KPICards stores={stores} />
 
-          <MonthSelector
-            months={months}
-            selectedMonth={selectedMonth}
-          />
-          {stores.length > 0 && stores[0].closeDate && (
+         <MonthSelector
+  months={months}
+  selectedMonth={selectedMonth}
+/>
+
+{stores.length > 0 && stores[0].closeDate && (
   <div className="bg-white rounded-xl shadow px-6 py-3 mb-6">
     <span className="text-sm text-gray-600">
       集計時点：{stores[0].closeDate}
     </span>
   </div>
 )}
-</p>
 
-          <RankingCards
-            stores={stores}
-            growthStores={growthStores}
-          />
-
-          <StoreSearchList
-            stores={stores}
-            selectedMonth={selectedMonth}
-          />
-        </div>
-      </main>
-    </div>
-  );
-}
+<RankingCards
+  stores={stores}
+  growthStores={growthStores}
+/>
