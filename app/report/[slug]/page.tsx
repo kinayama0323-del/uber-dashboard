@@ -237,7 +237,7 @@ const improvementComments =
 
   {store.closeDate && (
     <span className="bg-white/20 px-3 py-1 rounded-full text-sm">
-      {store.closeDate}〆
+      {store.closeDate}
     </span>
   )}
 </div>
