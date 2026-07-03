@@ -44,8 +44,13 @@ export default async function Home({
             months={months}
             selectedMonth={selectedMonth}
           />
-          <p className="text-sm text-gray-500 mb-6">
-  集計時点：{stores[0]?.closeDate}
+          {stores.length > 0 && stores[0].closeDate && (
+  <div className="bg-white rounded-xl shadow px-6 py-3 mb-6">
+    <span className="text-sm text-gray-600">
+      集計時点：{stores[0].closeDate}
+    </span>
+  </div>
+)}
 </p>
 
           <RankingCards

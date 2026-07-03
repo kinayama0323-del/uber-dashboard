@@ -232,6 +232,9 @@ const improvementComments =
       <header className="bg-green-600 text-white p-8">
         <p className="text-sm opacity-90">月次実績レポート</p>
         <h1 className="text-3xl font-bold mt-2">{store.storeName}</h1>
+        <h2 className="text-red-500">
+  closeDate：{JSON.stringify(store.closeDate)}
+</h2>
         <p className="mt-2 opacity-90">
   {store.month}
   {store.closeDate && `　${store.closeDate}`}
