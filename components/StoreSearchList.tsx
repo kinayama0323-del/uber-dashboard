@@ -109,7 +109,7 @@ export default function StoreSearchList({ stores, selectedMonth }: Props) {
             </div>
 
             <Link
-              href={`/store/${store.slug}?month=${selectedMonth}`}
+              href={`/report/${store.slug}?month=${selectedMonth}`}
               className="mt-6 block w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-center"
             >
               詳細を見る
