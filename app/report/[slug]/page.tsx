@@ -254,16 +254,17 @@ const improvementComments =
 
   <p className="text-3xl font-bold">
     ¥
-    {(isCurrentMonth
-      ? store.forecastSales
-      : store.totalSales
-    ).toLocaleString()}
+{Math.round(
+  isCurrentMonth
+    ? store.forecastSales
+    : store.totalSales
+).toLocaleString()}
   </p>
 
   {isCurrentMonth && (
     <p className="text-sm text-gray-500 mt-2">
       （{store.closeDate}実績：
-      ¥{store.totalSales.toLocaleString()}）
+      ¥{Math.floor(store.forecastSales).toLocaleString()}
     </p>
   )}
 </div>
