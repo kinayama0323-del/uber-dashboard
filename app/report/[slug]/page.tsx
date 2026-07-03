@@ -261,12 +261,27 @@ const improvementComments =
 ).toLocaleString()}
   </p>
 
+  <div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">
+    {isCurrentMonth ? "予測売上" : "総売上"}
+  </p>
+
+  <p className="text-3xl font-bold">
+    ¥
+    {Math.round(
+      isCurrentMonth
+        ? store.forecastSales
+        : store.totalSales
+    ).toLocaleString()}
+  </p>
+
   {isCurrentMonth && (
     <p className="text-sm text-gray-500 mt-2">
       （{store.closeDate}実績：
-      ¥{Math.floor(store.forecastSales).toLocaleString()}
+      ¥{Math.round(store.totalSales).toLocaleString()}）
     </p>
   )}
+</div>
 </div>
           
           <div className="bg-white rounded-xl shadow p-6">
