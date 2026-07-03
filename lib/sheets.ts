@@ -62,6 +62,7 @@ export async function getStoresFromSheet(): Promise<Store[]> {
         month,
         closeDate: String(getValue(row, "closeDate")).trim(),
         totalSales: toNumber(getValue(row, "totalSales")),
+        forecastSales: toNumber(getValue(row, "forecastSales")),
         averageRating: toNumber(getValue(row, "averageRating")),
         commitJudge: String(getValue(row, "commitJudge")).trim(),
         brands: [],
