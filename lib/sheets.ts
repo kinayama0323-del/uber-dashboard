@@ -11,6 +11,7 @@ export type Store = {
   month: string;
   closeDate: string;
   totalSales: number;
+  forecastSales: number;
   averageRating: number;
   commitJudge: string;
   brands: any[];
