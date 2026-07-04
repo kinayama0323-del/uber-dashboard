@@ -247,21 +247,7 @@ const improvementComments =
           basePath={`/report/${slug}`}
         />
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-500">
-    {isCurrentMonth ? "予測売上" : "総売上"}
-  </p>
-
-  <p className="text-3xl font-bold">
-    ¥
-{Math.round(
-  isCurrentMonth
-    ? store.forecastSales
-    : store.totalSales
-).toLocaleString()}
-  </p>
-
-<div className="bg-white rounded-xl shadow p-6">
+         <div className="bg-white rounded-xl shadow p-6">
   <p className="text-gray-500">
     {isCurrentMonth ? "予測売上" : "総売上"}
   </p>
@@ -279,7 +265,6 @@ const improvementComments =
       {Math.round(store.totalSales).toLocaleString()}）
     </p>
   )}
-</div>
 </div>
           
           <div className="bg-white rounded-xl shadow p-6">

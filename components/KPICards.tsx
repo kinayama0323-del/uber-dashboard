@@ -17,7 +17,10 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
         activeStores.length;
 
   const brandCount = stores.reduce((sum, store) => {
-    return sum + store.brands.filter((brand: any) => brand.sales > 0).length;
+    return (
+      sum +
+      store.brands.filter((brand: any) => brand.sales > 0).length
+    );
   }, 0);
 
   return (
@@ -32,13 +35,6 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <p className="text-gray-500">平均評価</p>
-        <p className="text-3xl font-bold">
-          {averageRating === 0 ? "評価なし" : `${averageRating.toFixed(2)} ⭐`}
-        </p>
-      </div>
-
-      <div className="bg-white rounded-xl shadow p-6">
         <p className="text-gray-500">店舗数</p>
         <p className="text-3xl font-bold">{activeStores.length}店舗</p>
       </div>
@@ -46,6 +42,15 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
       <div className="bg-white rounded-xl shadow p-6">
         <p className="text-gray-500">運営ブランド数</p>
         <p className="text-3xl font-bold">{brandCount}ブランド</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow p-6">
+        <p className="text-gray-500">平均評価</p>
+        <p className="text-3xl font-bold">
+          {averageRating === 0
+            ? "評価なし"
+            : `${averageRating.toFixed(2)} ⭐`}
+        </p>
       </div>
     </div>
   );
