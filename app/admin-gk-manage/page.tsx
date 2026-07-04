@@ -20,6 +20,7 @@ export default async function Home({
   const selectedMonth = month || months[0];
 
   const stores = await getStoresByMonth(selectedMonth);
+  const isCurrentMonth = selectedMonth === months[0];
 
   const growthStores = await getStoreGrowthRates(stores, selectedMonth);
 
@@ -35,10 +36,8 @@ export default async function Home({
         </header>
 
         <div className="max-w-7xl mx-auto p-8">
-<KPICards
-  stores={stores}
-  isCurrentMonth={selectedMonth === months[0]}
-/>
+          <KPICards stores={stores} isCurrentMonth={isCurrentMonth} />
+
           <MonthSelector
             months={months}
             selectedMonth={selectedMonth}
@@ -55,11 +54,13 @@ export default async function Home({
           <RankingCards
             stores={stores}
             growthStores={growthStores}
+            isCurrentMonth={isCurrentMonth}
           />
 
           <StoreSearchList
             stores={stores}
             selectedMonth={selectedMonth}
+            isCurrentMonth={isCurrentMonth}
           />
         </div>
       </main>
