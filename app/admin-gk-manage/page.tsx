@@ -35,8 +35,10 @@ export default async function Home({
         </header>
 
         <div className="max-w-7xl mx-auto p-8">
-          <KPICards stores={stores} />
-
+<KPICards
+  stores={stores}
+  isCurrentMonth={selectedMonth === months[0]}
+/>
           <MonthSelector
             months={months}
             selectedMonth={selectedMonth}
