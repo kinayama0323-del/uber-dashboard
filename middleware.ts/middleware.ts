@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  if (!req.nextUrl.pathname.startsWith("/admin-gk-manage")) {
+  const pathname = req.nextUrl.pathname;
+
+  const isAdminPage =
+    pathname === "/admin-gk-manage" ||
+    pathname.startsWith("/admin-gk-manage/");
+
+  if (!isAdminPage) {
     return NextResponse.next();
   }
 
@@ -28,5 +34,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin-gk-manage/:path*"],
+  matcher: ["/admin-gk-manage", "/admin-gk-manage/:path*"],
 };
