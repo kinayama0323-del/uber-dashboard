@@ -297,6 +297,7 @@ const improvementComments =
  <KPIComparisonCards
   current={store}
   previous={previousStore}
+  isCurrentMonth={isCurrentMonth}
 />
         <section className="bg-white rounded-xl shadow p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">ブランド別 運営品質</h2>
