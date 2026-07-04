@@ -4,9 +4,17 @@ type Props = {
 };
 
 export function KPICards({ stores, isCurrentMonth = false }: Props) {
-  const totalSales = stores.reduce((sum, store) => {
-    return sum + (isCurrentMonth ? store.forecastSales : store.totalSales);
+  const forecastTotalSales = stores.reduce((sum, store) => {
+    return sum + (store.forecastSales || 0);
   }, 0);
+
+  const actualTotalSales = stores.reduce((sum, store) => {
+    return sum + (store.totalSales || 0);
+  }, 0);
+
+  const displaySales = isCurrentMonth
+    ? forecastTotalSales
+    : actualTotalSales;
 
   const activeStores = stores.filter((store) => store.totalSales > 0);
 
@@ -29,9 +37,16 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
         <p className="text-gray-500">
           {isCurrentMonth ? "予測売上" : "総売上"}
         </p>
+
         <p className="text-3xl font-bold">
-          ¥{Math.round(totalSales).toLocaleString()}
+          ¥{Math.round(displaySales).toLocaleString()}
         </p>
+
+        {isCurrentMonth && (
+          <p className="text-sm text-gray-500 mt-2">
+            実績：¥{Math.round(actualTotalSales).toLocaleString()}
+          </p>
+        )}
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
