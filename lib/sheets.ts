@@ -26,6 +26,14 @@ function getValue(row: any, key: string) {
   return row[key] ?? row[`﻿${key}`] ?? "";
 }
 
+function hasStoreStarted(store: Store) {
+  return (
+    store.totalSales > 0 ||
+    store.forecastSales > 0 ||
+    store.brands.some((brand: any) => brand.sales > 0)
+  );
+}
+
 export async function getStoresFromSheet(): Promise<Store[]> {
   const response = await fetch(CSV_URL + `&t=${Date.now()}`, {
     cache: "no-store",
@@ -51,7 +59,6 @@ export async function getStoresFromSheet(): Promise<Store[]> {
     const slug = String(getValue(row, "slug")).trim();
     const month = String(getValue(row, "month")).trim();
 
-    // 重要：slug + month で分ける
     const key = `${slug}-${month}`;
 
     if (!storeMap.has(key)) {
@@ -107,15 +114,21 @@ export async function getStoresByMonth(month?: string): Promise<Store[]> {
 
   return stores.filter((store) => store.month === selectedMonth);
 }
-export async function getStoreHistory(
-  slug: string
-) {
+
+export async function getStoreHistory(slug: string) {
   const stores = await getStoresFromSheet();
 
-  return stores
+  const history = stores
     .filter((s) => s.slug === slug)
     .sort((a, b) => a.month.localeCompare(b.month));
+
+  const startIndex = history.findIndex((store) => hasStoreStarted(store));
+
+  if (startIndex === -1) return history;
+
+  return history.slice(startIndex);
 }
+
 export async function getPreviousMonthStore(slug: string, month: string) {
   const history = await getStoreHistory(slug);
 
@@ -135,16 +148,25 @@ export async function getStoreGrowthRates(stores: Store[], month: string) {
         .filter((s) => s.slug === store.slug)
         .sort((a, b) => a.month.localeCompare(b.month));
 
-      const index = history.findIndex((s) => s.month === month);
+      const startIndex = history.findIndex((s) => hasStoreStarted(s));
+      const activeHistory =
+        startIndex === -1 ? history : history.slice(startIndex);
+
+      const index = activeHistory.findIndex((s) => s.month === month);
 
       if (index <= 0) return null;
 
-      const previous = history[index - 1];
+      const previous = activeHistory[index - 1];
 
       if (!previous || previous.totalSales === 0) return null;
 
+      const currentSales =
+        store.month === activeHistory[activeHistory.length - 1]?.month
+          ? store.forecastSales
+          : store.totalSales;
+
       const growth =
-        ((store.totalSales - previous.totalSales) / previous.totalSales) * 100;
+        ((currentSales - previous.totalSales) / previous.totalSales) * 100;
 
       return {
         ...store,
