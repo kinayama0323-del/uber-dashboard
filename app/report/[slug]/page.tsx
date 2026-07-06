@@ -285,6 +285,33 @@ export default async function StoreDetailPage({
               {store.brands.filter((brand) => brand.sales > 0).length}
             </p>
           </div>
+          <div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">店舗閲覧者数</p>
+  <p className="text-3xl font-bold">
+    {Math.round(store.storeViews || 0).toLocaleString()}
+  </p>
+</div>
+
+<div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">メニュー閲覧数</p>
+  <p className="text-3xl font-bold">
+    {Math.round(store.menuViews || 0).toLocaleString()}
+  </p>
+</div>
+
+<div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">注文者数</p>
+  <p className="text-3xl font-bold">
+    {Math.round(store.orderUsers || 0).toLocaleString()}
+  </p>
+</div>
+
+<div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">CL率</p>
+  <p className="text-3xl font-bold">
+    {(store.clRate || 0).toFixed(2)}%
+  </p>
+</div>
         </div>
 
         <KPIComparisonCards

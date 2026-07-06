@@ -30,9 +30,22 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
       store.brands.filter((brand: any) => brand.sales > 0).length
     );
   }, 0);
+const totalStoreViews = stores.reduce((sum, store) => {
+  return sum + (store.storeViews || 0);
+}, 0);
 
+const totalOrderUsers = stores.reduce((sum, store) => {
+  return sum + (store.orderUsers || 0);
+}, 0);
+
+const averageClRate =
+  stores.length === 0
+    ? 0
+    : stores.reduce((sum, store) => {
+        return sum + (store.clRate || 0);
+      }, 0) / stores.length;
   return (
-    <div className="grid md:grid-cols-4 gap-6 mb-8">
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div className="bg-white rounded-xl shadow p-6">
         <p className="text-gray-500">
           {isCurrentMonth ? "予測売上" : "総売上"}
@@ -67,6 +80,28 @@ export function KPICards({ stores, isCurrentMonth = false }: Props) {
             : `${averageRating.toFixed(2)} ⭐`}
         </p>
       </div>
+      <div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">総PV</p>
+  <p className="text-3xl font-bold">
+    {totalStoreViews.toLocaleString()}
+  </p>
+</div>
+
+<div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">総注文者数</p>
+  <p className="text-3xl font-bold">
+    {totalOrderUsers.toLocaleString()}
+  </p>
+</div>
+
+<div className="bg-white rounded-xl shadow p-6">
+  <p className="text-gray-500">平均CL率</p>
+  <p className="text-3xl font-bold">
+    {averageClRate.toFixed(2)}%
+  </p>
+</div>
     </div>
+    
   );
+  
 }

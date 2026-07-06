@@ -12,6 +12,10 @@ export type Store = {
   closeDate: string;
   totalSales: number;
   forecastSales: number;
+  storeViews: number;
+  menuViews: number;
+  orderUsers: number;
+  clRate: number;
   averageRating: number;
   commitJudge: string;
   brands: any[];
@@ -71,6 +75,10 @@ export async function getStoresFromSheet(): Promise<Store[]> {
         closeDate: String(getValue(row, "closeDate")).trim(),
         totalSales: toNumber(getValue(row, "totalSales")),
         forecastSales: toNumber(getValue(row, "forecastSales")),
+        storeViews: toNumber(getValue(row, "storeViews")),
+        menuViews: toNumber(getValue(row, "menuViews")),
+        orderUsers: toNumber(getValue(row, "orderUsers")),
+        clRate: toNumber(getValue(row, "clRate")),
         averageRating: toNumber(getValue(row, "averageRating")),
         commitJudge: String(getValue(row, "commitJudge")).trim(),
         brands: [],
