@@ -1,5 +1,6 @@
 import StoreTrendChart from "../../../components/StoreTrendChart";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   getAvailableMonths,
   getStoresByMonth,
@@ -82,6 +83,7 @@ function JudgeBadge({
     </span>
   );
 }
+
 function getQualityJudge(store: any) {
   const ngItems = new Set<string>();
 
@@ -105,44 +107,28 @@ function getQualityJudge(store: any) {
 
   return { label: "要改善", className: "bg-red-100 text-red-700" };
 }
+
 function getImprovementComments(store: any) {
   const comments: string[] = [];
-
   const activeBrands = store.brands.filter((brand: any) => brand.sales > 0);
 
-  const hasLowRating = activeBrands.some(
-    (brand: any) => brand.rating > 0 && brand.rating < 4.0
-  );
-  const hasLowBusinessHours = activeBrands.some(
-    (brand: any) => brand.businessHours < 180
-  );
-  const hasLowOnlineRate = activeBrands.some(
-    (brand: any) => brand.onlineRate < 90
-  );
-  const hasHighMissedRate = activeBrands.some(
-    (brand: any) => brand.missedRate > 1
-  );
-  const hasSlowMakeTime = activeBrands.some(
-    (brand: any) => brand.makeTime > 10
-  );
-
-  if (hasLowRating) {
+  if (activeBrands.some((brand: any) => brand.rating > 0 && brand.rating < 4.0)) {
     comments.push("店舗評価が4.0を下回っているブランドがあります。商品品質・梱包・提供スピード・レビュー内容の確認をおすすめします。");
   }
 
-  if (hasLowBusinessHours) {
+  if (activeBrands.some((brand: any) => brand.businessHours < 180)) {
     comments.push("営業時間が180時間未満のブランドがあります。稼働時間を増やすことで、注文機会の増加が期待できます。");
   }
 
-  if (hasLowOnlineRate) {
+  if (activeBrands.some((brand: any) => brand.onlineRate < 90)) {
     comments.push("オンライン率が90%未満のブランドがあります。営業中のオフライン時間を減らすことで、売上機会損失を防げます。");
   }
 
-  if (hasHighMissedRate) {
+  if (activeBrands.some((brand: any) => brand.missedRate > 1)) {
     comments.push("未受注率が1%を超えているブランドがあります。注文通知・端末確認・受注体制の見直しをおすすめします。");
   }
 
-  if (hasSlowMakeTime) {
+  if (activeBrands.some((brand: any) => brand.makeTime > 10)) {
     comments.push("メイク時間が10分を超えているブランドがあります。調理導線・仕込み量・ピーク時対応の見直しが有効です。");
   }
 
@@ -161,27 +147,32 @@ export default async function StoreDetailPage({
   const { month } = await searchParams;
 
   const months = await getAvailableMonths();
-  const selectedMonth = month || months[0];
+  const history = await getStoreHistory(slug);
+
+  if (history.length === 0) {
+    notFound();
+  }
+
+  const storeMonths = history
+    .map((item) => item.month)
+    .sort()
+    .reverse();
+
+  const selectedMonth = month || storeMonths[0];
 
   const stores = await getStoresByMonth(selectedMonth);
   const store = stores.find((s) => s.slug === slug);
-  const history = await getStoreHistory(slug);
-  const previousStore = await getPreviousMonthStore(slug, selectedMonth);
 
   if (!store) {
-    return (
-      <main className="min-h-screen bg-gray-100 p-10">
-        <h1 className="text-2xl font-bold">ページが見つかりません</h1>
-        <Link href="/" className="text-green-600 underline">
-          一覧へ戻る
-        </Link>
-      </main>
-    );
+    notFound();
   }
- const isCurrentMonth = store.month === months[0];
-const qualityJudge = getQualityJudge(store);
-const improvementComments =
-  getImprovementComments(store);
+
+  const previousStore = await getPreviousMonthStore(slug, selectedMonth);
+  const isCurrentMonth = selectedMonth === months[0];
+
+  const qualityJudge = getQualityJudge(store);
+  const improvementComments = getImprovementComments(store);
+
   const salesChartData = history.map((item) => ({
     month: item.month,
     value: item.totalSales,
@@ -233,40 +224,41 @@ const improvementComments =
       <header className="bg-green-600 text-white p-8">
         <p className="text-sm opacity-90">月次実績レポート</p>
         <h1 className="text-3xl font-bold mt-2">{store.storeName}</h1>
-       
+
         <p className="mt-2 opacity-90">
-  {store.month}
-  {store.closeDate && `　${store.closeDate}`}
-</p>
+          {store.month}
+          {store.closeDate && `　${store.closeDate}`}
+        </p>
       </header>
 
       <div className="max-w-7xl mx-auto p-8">
         <MonthSelector
-          months={months}
+          months={storeMonths}
           selectedMonth={selectedMonth}
           basePath={`/report/${slug}`}
         />
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-         <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-500">
-    {isCurrentMonth ? "予測売上" : "総売上"}
-  </p>
 
-  <p className="text-3xl font-bold">
-    ¥
-    {Math.round(
-      isCurrentMonth ? store.forecastSales : store.totalSales
-    ).toLocaleString()}
-  </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow p-6">
+            <p className="text-gray-500">
+              {isCurrentMonth ? "予測売上" : "総売上"}
+            </p>
 
-  {isCurrentMonth && (
-    <p className="text-sm text-gray-500 mt-2">
-      （{store.closeDate}実績：¥
-      {Math.round(store.totalSales).toLocaleString()}）
-    </p>
-  )}
-</div>
-          
+            <p className="text-3xl font-bold">
+              ¥
+              {Math.round(
+                isCurrentMonth ? store.forecastSales : store.totalSales
+              ).toLocaleString()}
+            </p>
+
+            {isCurrentMonth && (
+              <p className="text-sm text-gray-500 mt-2">
+                （{store.closeDate}実績：¥
+                {Math.round(store.totalSales).toLocaleString()}）
+              </p>
+            )}
+          </div>
+
           <div className="bg-white rounded-xl shadow p-6">
             <p className="text-gray-500">平均評価</p>
             <p className="text-3xl font-bold">
@@ -277,14 +269,14 @@ const improvementComments =
           </div>
 
           <div className="bg-white rounded-xl shadow p-6">
-           <p className="text-gray-500">運営品質判定</p>
-<div className="mt-2">
-  <span
-    className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-bold ${qualityJudge.className}`}
-  >
-    {qualityJudge.label}
-  </span>
-</div>
+            <p className="text-gray-500">運営品質判定</p>
+            <div className="mt-2">
+              <span
+                className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-bold ${qualityJudge.className}`}
+              >
+                {qualityJudge.label}
+              </span>
+            </div>
           </div>
 
           <div className="bg-white rounded-xl shadow p-6">
@@ -294,10 +286,13 @@ const improvementComments =
             </p>
           </div>
         </div>
- <KPIComparisonCards
-  current={store}
-  previous={previousStore}
-/>
+
+        <KPIComparisonCards
+          current={store}
+          previous={previousStore}
+          isCurrentMonth={isCurrentMonth}
+        />
+
         <section className="bg-white rounded-xl shadow p-6 mb-8">
           <h2 className="text-2xl font-bold mb-4">ブランド別 運営品質</h2>
 
@@ -412,17 +407,15 @@ const improvementComments =
         </div>
 
         <section className="bg-green-50 border border-green-200 rounded-xl p-6">
-  <h2 className="text-xl font-bold mb-3">改善ポイント</h2>
+          <h2 className="text-xl font-bold mb-3">改善ポイント</h2>
 
-  <ul className="list-disc pl-6 space-y-3 leading-7">
-    {improvementComments.map((comment, index) => (
-      <li key={index}>{comment}</li>
-    ))}
-  </ul>
-</section>
+          <ul className="list-disc pl-6 space-y-3 leading-7">
+            {improvementComments.map((comment, index) => (
+              <li key={index}>{comment}</li>
+            ))}
+          </ul>
+        </section>
       </div>
-     
     </main>
   );
-  
 }
