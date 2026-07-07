@@ -321,12 +321,12 @@ export default async function StoreDetailPage({
         />
 
         <section className="bg-white rounded-xl shadow p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">ブランド別 運営品質</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-950">ブランド別 運営品質</h2>
 
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-500">
                   <th className="border p-3 text-left">ブランド名</th>
                   <th className="border p-3">売上</th>
                   <th className="border p-3">店舗評価</th>
