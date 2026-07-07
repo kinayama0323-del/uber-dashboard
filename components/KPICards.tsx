@@ -47,56 +47,56 @@ const averageClRate =
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div className="bg-white rounded-xl shadow p-6">
-        <p className="text-gray-500">
+        <p className="text-gray-700 font-bold">
           {isCurrentMonth ? "予測売上" : "総売上"}
         </p>
 
-        <p className="text-3xl font-bold">
+        <p className="text-3xl font-black text-gray-950">
           ¥{Math.round(displaySales).toLocaleString()}
         </p>
 
         {isCurrentMonth && (
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-700 font-bold mt-2">
             実績：¥{Math.round(actualTotalSales).toLocaleString()}
           </p>
         )}
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <p className="text-gray-500">店舗数</p>
-        <p className="text-3xl font-bold">{activeStores.length}店舗</p>
+        <p className="text-gray-700 font-bold">店舗数</p>
+        <p className="text-3xl font-black text-gray-950">{activeStores.length}店舗</p>
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <p className="text-gray-500">運営ブランド数</p>
-        <p className="text-3xl font-bold">{brandCount}ブランド</p>
+        <p className="text-gray-700 font-bold">運営ブランド数</p>
+        <p className="text-3xl font-black text-gray-950">{brandCount}ブランド</p>
       </div>
 
       <div className="bg-white rounded-xl shadow p-6">
-        <p className="text-gray-500">平均評価</p>
-        <p className="text-3xl font-bold">
+        <p className="text-gray-700 font-bold">平均評価</p>
+        <p className="text-3xl font-black text-gray-950">
           {averageRating === 0
             ? "評価なし"
             : `${averageRating.toFixed(2)} ⭐`}
         </p>
       </div>
       <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-500">総PV</p>
-  <p className="text-3xl font-bold">
+  <p className="text-gray-700 font-bold">総PV</p>
+  <p className="text-3xl font-black text-gray-950">
     {totalStoreViews.toLocaleString()}
   </p>
 </div>
 
 <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-500">総注文者数</p>
-  <p className="text-3xl font-bold">
+  <p className="text-gray-700 font-bold">総注文者数</p>
+  <p className="text-3xl font-black text-gray-950">
     {totalOrderUsers.toLocaleString()}
   </p>
 </div>
 
 <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-500">平均CL率</p>
-  <p className="text-3xl font-bold">
+  <p className="text-gray-700 font-bold">平均CL率</p>
+  <p className="text-3xl font-black text-gray-950">
     {averageClRate.toFixed(2)}%
   </p>
 </div>
