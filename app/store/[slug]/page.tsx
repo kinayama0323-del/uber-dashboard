@@ -240,7 +240,7 @@ export default async function StoreDetailPage({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-700 font-bold">
+            <p className="text-gray-900 font-bold">
               {isCurrentMonth ? "予測売上" : "総売上"}
             </p>
 
@@ -252,7 +252,7 @@ export default async function StoreDetailPage({
             </p>
 
             {isCurrentMonth && (
-              <p className="text-sm text-gray-700 font-bold mt-2">
+              <p className="text-sm text-gray-900 font-bold mt-2">
                 （{store.closeDate}実績：¥
                 {Math.round(store.totalSales).toLocaleString()}）
               </p>
@@ -260,7 +260,7 @@ export default async function StoreDetailPage({
           </div>
 
           <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-700 font-bold">平均評価</p>
+            <p className="text-gray-900 font-bold">平均評価</p>
             <p className="text-3xl font-black text-gray-950">
               {store.averageRating === 0
                 ? "評価なし"
@@ -269,7 +269,7 @@ export default async function StoreDetailPage({
           </div>
 
           <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-700 font-bold">運営品質判定</p>
+            <p className="text-gray-900 font-bold">運営品質判定</p>
             <div className="mt-2">
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-bold ${qualityJudge.className}`}
@@ -280,34 +280,34 @@ export default async function StoreDetailPage({
           </div>
 
           <div className="bg-white rounded-xl shadow p-6">
-            <p className="text-gray-700 font-bold">運営ブランド数</p>
+            <p className="text-gray-900 font-bold">運営ブランド数</p>
             <p className="text-3xl font-black text-gray-950">
               {store.brands.filter((brand) => brand.sales > 0).length}
             </p>
           </div>
           <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-700 font-bold">店舗閲覧者数</p>
+  <p className="text-gray-900 font-bold">店舗閲覧者数</p>
   <p className="text-3xl font-black text-gray-950">
     {Math.round(store.storeViews || 0).toLocaleString()}
   </p>
 </div>
 
 <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-700 font-bold">メニュー閲覧数</p>
+  <p className="text-gray-900 font-bold">メニュー閲覧数</p>
   <p className="text-3xl font-black text-gray-950">
     {Math.round(store.menuViews || 0).toLocaleString()}
   </p>
 </div>
 
 <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-700 font-bold">注文者数</p>
+  <p className="text-gray-900 font-bold">注文者数</p>
   <p className="text-3xl font-black text-gray-950">
     {Math.round(store.orderUsers || 0).toLocaleString()}
   </p>
 </div>
 
 <div className="bg-white rounded-xl shadow p-6">
-  <p className="text-gray-700 font-bold">CL率</p>
+  <p className="text-gray-900 font-bold">CL率</p>
   <p className="text-3xl font-black text-gray-950">
     {(store.clRate || 0).toFixed(2)}%
   </p>
@@ -326,7 +326,7 @@ export default async function StoreDetailPage({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-100">
+                <tr className="bg-gray-950">
                   <th className="border p-3 text-left">ブランド名</th>
                   <th className="border p-3">売上</th>
                   <th className="border p-3">店舗評価</th>

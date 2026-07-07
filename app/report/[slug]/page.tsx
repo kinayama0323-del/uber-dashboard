@@ -326,7 +326,7 @@ export default async function StoreDetailPage({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-500">
+                <tr className="bg-gray-950">
                   <th className="border p-3 text-left">ブランド名</th>
                   <th className="border p-3">売上</th>
                   <th className="border p-3">店舗評価</th>
