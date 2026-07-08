@@ -326,15 +326,29 @@ export default async function StoreDetailPage({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="bg-gray-950">
-                  <th className="border p-3 text-left">ブランド名</th>
-                  <th className="border p-3">売上</th>
-                  <th className="border p-3">店舗評価</th>
-                  <th className="border p-3">営業時間</th>
-                  <th className="border p-3">オンライン率</th>
-                  <th className="border p-3">未受注率</th>
-                  <th className="border p-3">メイク時間</th>
-                </tr>
+                <tr className="bg-gray-950 text-white">
+  <th className="border border-gray-700 p-3 text-left font-bold text-white">
+    ブランド名
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    売上
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    店舗評価
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    営業時間
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    オンライン率
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    未受注率
+  </th>
+  <th className="border border-gray-700 p-3 font-bold text-white">
+    メイク時間
+  </th>
+</tr>
               </thead>
 
               <tbody>
