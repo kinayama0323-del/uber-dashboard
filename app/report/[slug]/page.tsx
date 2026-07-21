@@ -464,13 +464,13 @@ export default async function StoreDetailPage({
           isCurrentMonth={isCurrentMonth}
         />
 
-       <section className="mb-8 rounded-xl bg-white p-4 shadow md:p-6">
+<section className="mb-8 rounded-xl bg-white p-4 shadow md:p-6">
   <h2 className="mb-4 text-2xl font-bold text-gray-950">
     ブランド別 運営品質
   </h2>
 
   <div className="overflow-x-auto">
-    <table className="w-full min-w-[1500px] border-collapse text-sm text-gray-950">
+    <table className="w-full min-w-[1600px] border-collapse text-sm text-gray-950">
       <thead>
         <tr className="bg-gray-950 text-white">
           <th className="border border-gray-700 p-3 text-left font-bold text-white">
@@ -500,6 +500,7 @@ export default async function StoreDetailPage({
           <th className="border border-gray-700 p-3 font-bold text-white">
             メイク時間
           </th>
+
           <th className="border border-gray-700 p-3 font-bold text-white">
             店舗閲覧者数
           </th>
@@ -515,7 +516,6 @@ export default async function StoreDetailPage({
           <th className="border border-gray-700 p-3 font-bold text-white">
             CL率
           </th>
-          
         </tr>
       </thead>
 
@@ -530,25 +530,11 @@ export default async function StoreDetailPage({
               ¥{Math.round(brand.sales || 0).toLocaleString()}
             </td>
 
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(brand.storeViews || 0).toLocaleString()}
-            </td>
-
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(brand.menuViews || 0).toLocaleString()}
-            </td>
-
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(brand.orderUsers || 0).toLocaleString()}
-            </td>
-
-            <td className="border p-3 text-center font-bold text-gray-950">
-              {(brand.clRate || 0).toFixed(2)}%
-            </td>
-
             <td className="border p-3 text-center font-semibold text-gray-950">
               {brand.rating === 0 ? (
-                <span className="text-gray-700">評価なし</span>
+                <span className="text-gray-700">
+                  評価なし
+                </span>
               ) : (
                 <>
                   <span className="font-bold text-gray-950">
@@ -592,6 +578,28 @@ export default async function StoreDetailPage({
                 type="makeTime"
                 value={brand.makeTime}
               />
+            </td>
+
+            <td className="border p-3 text-right font-semibold text-gray-950">
+              {Math.round(
+                brand.storeViews || 0
+              ).toLocaleString()}
+            </td>
+
+            <td className="border p-3 text-right font-semibold text-gray-950">
+              {Math.round(
+                brand.menuViews || 0
+              ).toLocaleString()}
+            </td>
+
+            <td className="border p-3 text-right font-semibold text-gray-950">
+              {Math.round(
+                brand.orderUsers || 0
+              ).toLocaleString()}
+            </td>
+
+            <td className="border p-3 text-center font-bold text-gray-950">
+              {(brand.clRate || 0).toFixed(2)}%
             </td>
           </tr>
         ))}
