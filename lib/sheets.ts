@@ -3,6 +3,31 @@ import Papa from "papaparse";
 const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vR7eOIuYXpuBYGMubWUtQRMXClEqb57Wpj36oMqPrfUGe6KQiUyOEObB3WzkjmDesMTs_fa0NVfD9w_/pub?gid=1100032526&single=true&output=csv";
 
+export type Brand = {
+  brandName: string;
+  sales: number;
+
+  storeViews: number;
+  menuViews: number;
+  orderUsers: number;
+  clRate: number;
+
+  rating: number;
+  ratingJudge: string;
+
+  businessHours: number;
+  businessHoursJudge: string;
+
+  onlineRate: number;
+  onlineRateJudge: string;
+
+  missedRate: number;
+  missedRateJudge: string;
+
+  makeTime: number;
+  makeTimeJudge: string;
+};
+
 export type Store = {
   id: number;
   slug: string;
@@ -10,178 +35,537 @@ export type Store = {
   storeName: string;
   month: string;
   closeDate: string;
+
   totalSales: number;
   forecastSales: number;
+
   storeViews: number;
   menuViews: number;
   orderUsers: number;
   clRate: number;
+
   averageRating: number;
   commitJudge: string;
-  brands: any[];
+
+  brands: Brand[];
 };
 
-function toNumber(value: unknown) {
-  if (value === null || value === undefined || value === "") return 0;
-  return Number(String(value).replace(/,/g, "").replace("%", "")) || 0;
+type CsvRow = Record<string, unknown>;
+
+function normalizeHeader(value: unknown): string {
+  return String(value ?? "")
+    .replace(/^\uFEFF/, "")
+    .replace(/\uFEFF/g, "")
+    .replace(/\r/g, "")
+    .replace(/\n/g, "")
+    .trim();
 }
 
-function getValue(row: any, key: string) {
-  return row[key] ?? row[`﻿${key}`] ?? "";
+function normalizeRow(row: CsvRow): CsvRow {
+  const normalized: CsvRow = {};
+
+  Object.entries(row).forEach(([key, value]) => {
+    normalized[normalizeHeader(key)] = value;
+  });
+
+  return normalized;
 }
 
-function hasStoreStarted(store: Store) {
+function toNumber(value: unknown): number {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  const text = String(value)
+    .replace(/,/g, "")
+    .replace(/%/g, "")
+    .replace(/￥/g, "")
+    .replace(/¥/g, "")
+    .trim();
+
+  const number = Number(text);
+
+  return Number.isFinite(number) ? number : 0;
+}
+
+function getValue(
+  row: CsvRow,
+  key: string
+): unknown {
+  return row[key] ?? "";
+}
+
+function hasStoreStarted(
+  store: Store
+): boolean {
   return (
     store.totalSales > 0 ||
     store.forecastSales > 0 ||
-    store.brands.some((brand: any) => brand.sales > 0)
+    store.brands.some(
+      (brand) => brand.sales > 0
+    )
   );
 }
 
-export async function getStoresFromSheet(): Promise<Store[]> {
-  const response = await fetch(CSV_URL + `&t=${Date.now()}`, {
-    cache: "no-store",
-  });
+export async function getStoresFromSheet(): Promise<
+  Store[]
+> {
+  const response = await fetch(
+    `${CSV_URL}&t=${Date.now()}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `app_dataのCSV取得に失敗しました。status: ${response.status}`
+    );
+  }
 
   const csv = await response.text();
 
-  const result = Papa.parse<any>(csv, {
-    header: true,
-    skipEmptyLines: true,
-  });
+  const parseResult =
+    Papa.parse<CsvRow>(csv, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (
+        header: string
+      ) => normalizeHeader(header),
+    });
 
-  const rows = result.data.filter((row: any) => {
-    const slug = getValue(row, "slug");
-    const month = getValue(row, "month");
-    const brandName = getValue(row, "brandName");
-    return slug && month && brandName;
-  });
+  if (parseResult.errors.length > 0) {
+    console.error(
+      "CSV解析エラー:",
+      parseResult.errors
+    );
+  }
 
-  const storeMap = new Map<string, Store>();
+  const normalizedRows =
+    parseResult.data.map(
+      (row) => normalizeRow(row)
+    );
 
-  rows.forEach((row: any) => {
-    const slug = String(getValue(row, "slug")).trim();
-    const month = String(getValue(row, "month")).trim();
+  const rows = normalizedRows.filter(
+    (row) => {
+      const slug = String(
+        getValue(row, "slug")
+      ).trim();
+
+      const month = String(
+        getValue(row, "month")
+      ).trim();
+
+      const brandName = String(
+        getValue(row, "brandName")
+      ).trim();
+
+      return Boolean(
+        slug &&
+          month &&
+          brandName
+      );
+    }
+  );
+
+  const storeMap =
+    new Map<string, Store>();
+
+  rows.forEach((row) => {
+    const slug = String(
+      getValue(row, "slug")
+    ).trim();
+
+    const month = String(
+      getValue(row, "month")
+    ).trim();
 
     const key = `${slug}-${month}`;
 
     if (!storeMap.has(key)) {
       storeMap.set(key, {
         id: storeMap.size + 1,
+
         slug,
-        owner: String(getValue(row, "owner")).trim(),
-        storeName: String(getValue(row, "storeName")).trim(),
+
+        owner: String(
+          getValue(row, "owner")
+        ).trim(),
+
+        storeName: String(
+          getValue(row, "storeName")
+        ).trim(),
+
         month,
-        closeDate: String(getValue(row, "closeDate")).trim(),
-        totalSales: toNumber(getValue(row, "totalSales")),
-        forecastSales: toNumber(getValue(row, "forecastSales")),
-        storeViews: toNumber(getValue(row, "storeViews")),
-        menuViews: toNumber(getValue(row, "menuViews")),
-        orderUsers: toNumber(getValue(row, "orderUsers")),
-        clRate: toNumber(getValue(row, "clRate")),
-        averageRating: toNumber(getValue(row, "averageRating")),
-        commitJudge: String(getValue(row, "commitJudge")).trim(),
+
+        closeDate: String(
+          getValue(row, "closeDate")
+        ).trim(),
+
+        totalSales: toNumber(
+          getValue(row, "totalSales")
+        ),
+
+        forecastSales: toNumber(
+          getValue(
+            row,
+            "forecastSales"
+          )
+        ),
+
+        storeViews: 0,
+        menuViews: 0,
+        orderUsers: 0,
+        clRate: 0,
+
+        averageRating: toNumber(
+          getValue(
+            row,
+            "averageRating"
+          )
+        ),
+
+        commitJudge: String(
+          getValue(
+            row,
+            "commitJudge"
+          )
+        ).trim(),
+
         brands: [],
       });
     }
 
-    const store = storeMap.get(key)!;
+    const store =
+      storeMap.get(key);
 
-    store.brands.push({
-      brandName: String(getValue(row, "brandName")).trim(),
-      sales: toNumber(getValue(row, "sales")),
-      rating: toNumber(getValue(row, "rating")),
-      ratingJudge: String(getValue(row, "ratingJudge")).trim(),
-      businessHours: toNumber(getValue(row, "businessHours")),
-      businessHoursJudge: String(getValue(row, "businessHoursJudge")).trim(),
-      onlineRate: toNumber(getValue(row, "onlineRate")),
-      onlineRateJudge: String(getValue(row, "onlineRateJudge")).trim(),
-      missedRate: toNumber(getValue(row, "missedRate")),
-      missedRateJudge: String(getValue(row, "missedRateJudge")).trim(),
-      makeTime: toNumber(getValue(row, "makeTime")),
-      makeTimeJudge: String(getValue(row, "makeTimeJudge")).trim(),
-    });
+    if (!store) return;
+
+    const brand: Brand = {
+      brandName: String(
+        getValue(row, "brandName")
+      ).trim(),
+
+      sales: toNumber(
+        getValue(row, "sales")
+      ),
+
+      storeViews: toNumber(
+        getValue(row, "storeViews")
+      ),
+
+      menuViews: toNumber(
+        getValue(row, "menuViews")
+      ),
+
+      orderUsers: toNumber(
+        getValue(row, "orderUsers")
+      ),
+
+      clRate: toNumber(
+        getValue(row, "clRate")
+      ),
+
+      rating: toNumber(
+        getValue(row, "rating")
+      ),
+
+      ratingJudge: String(
+        getValue(
+          row,
+          "ratingJudge"
+        )
+      ).trim(),
+
+      businessHours: toNumber(
+        getValue(
+          row,
+          "businessHours"
+        )
+      ),
+
+      businessHoursJudge: String(
+        getValue(
+          row,
+          "businessHoursJudge"
+        )
+      ).trim(),
+
+      onlineRate: toNumber(
+        getValue(
+          row,
+          "onlineRate"
+        )
+      ),
+
+      onlineRateJudge: String(
+        getValue(
+          row,
+          "onlineRateJudge"
+        )
+      ).trim(),
+
+      missedRate: toNumber(
+        getValue(
+          row,
+          "missedRate"
+        )
+      ),
+
+      missedRateJudge: String(
+        getValue(
+          row,
+          "missedRateJudge"
+        )
+      ).trim(),
+
+      makeTime: toNumber(
+        getValue(
+          row,
+          "makeTime"
+        )
+      ),
+
+      makeTimeJudge: String(
+        getValue(
+          row,
+          "makeTimeJudge"
+        )
+      ).trim(),
+    };
+
+    store.brands.push(brand);
   });
 
-  return Array.from(storeMap.values());
+  const stores =
+    Array.from(
+      storeMap.values()
+    );
+
+  stores.forEach((store) => {
+    store.storeViews =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.storeViews,
+        0
+      );
+
+    store.menuViews =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.menuViews,
+        0
+      );
+
+    store.orderUsers =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.orderUsers,
+        0
+      );
+
+    // CL率はブランドごとの単純平均ではなく、
+    // 店舗TOTALの注文者数 ÷ メニュー閲覧数で計算
+    store.clRate =
+      store.menuViews > 0
+        ? (store.orderUsers /
+            store.menuViews) *
+          100
+        : 0;
+  });
+
+  return stores;
 }
 
-export async function getAvailableMonths(): Promise<string[]> {
-  const stores = await getStoresFromSheet();
+export async function getAvailableMonths(): Promise<
+  string[]
+> {
+  const stores =
+    await getStoresFromSheet();
 
-  return Array.from(new Set(stores.map((store) => store.month)))
+  return Array.from(
+    new Set(
+      stores.map(
+        (store) => store.month
+      )
+    )
+  )
     .sort()
     .reverse();
 }
 
-export async function getStoresByMonth(month?: string): Promise<Store[]> {
-  const stores = await getStoresFromSheet();
-  const months = await getAvailableMonths();
+export async function getStoresByMonth(
+  month?: string
+): Promise<Store[]> {
+  const stores =
+    await getStoresFromSheet();
 
-  const selectedMonth = month || months[0];
+  const months = Array.from(
+    new Set(
+      stores.map(
+        (store) => store.month
+      )
+    )
+  )
+    .sort()
+    .reverse();
 
-  return stores.filter((store) => store.month === selectedMonth);
+  const selectedMonth =
+    month || months[0];
+
+  if (!selectedMonth) {
+    return [];
+  }
+
+  return stores.filter(
+    (store) =>
+      store.month === selectedMonth
+  );
 }
 
-export async function getStoreHistory(slug: string) {
-  const stores = await getStoresFromSheet();
+export async function getStoreHistory(
+  slug: string
+): Promise<Store[]> {
+  const stores =
+    await getStoresFromSheet();
 
   const history = stores
-    .filter((s) => s.slug === slug)
-    .sort((a, b) => a.month.localeCompare(b.month));
+    .filter(
+      (store) =>
+        store.slug === slug
+    )
+    .sort((a, b) =>
+      a.month.localeCompare(
+        b.month
+      )
+    );
 
-  const startIndex = history.findIndex((store) => hasStoreStarted(store));
+  const startIndex =
+    history.findIndex(
+      (store) =>
+        hasStoreStarted(store)
+    );
 
-  if (startIndex === -1) return history;
+  if (startIndex === -1) {
+    return history;
+  }
 
-  return history.slice(startIndex);
+  return history.slice(
+    startIndex
+  );
 }
 
-export async function getPreviousMonthStore(slug: string, month: string) {
-  const history = await getStoreHistory(slug);
+export async function getPreviousMonthStore(
+  slug: string,
+  month: string
+): Promise<Store | null> {
+  const history =
+    await getStoreHistory(slug);
 
-  const index = history.findIndex((s) => s.month === month);
+  const index =
+    history.findIndex(
+      (store) =>
+        store.month === month
+    );
 
-  if (index <= 0) return null;
+  if (index <= 0) {
+    return null;
+  }
 
   return history[index - 1];
 }
 
-export async function getStoreGrowthRates(stores: Store[], month: string) {
-  const allStores = await getStoresFromSheet();
+export async function getStoreGrowthRates(
+  stores: Store[],
+  month: string
+): Promise<
+  Array<
+    Store & {
+      growth: number;
+    }
+  >
+> {
+  const allStores =
+    await getStoresFromSheet();
 
-  const result = stores
+  return stores
     .map((store) => {
-      const history = allStores
-        .filter((s) => s.slug === store.slug)
-        .sort((a, b) => a.month.localeCompare(b.month));
+      const history =
+        allStores
+          .filter(
+            (item) =>
+              item.slug ===
+              store.slug
+          )
+          .sort((a, b) =>
+            a.month.localeCompare(
+              b.month
+            )
+          );
 
-      const startIndex = history.findIndex((s) => hasStoreStarted(s));
+      const startIndex =
+        history.findIndex(
+          (item) =>
+            hasStoreStarted(item)
+        );
+
       const activeHistory =
-        startIndex === -1 ? history : history.slice(startIndex);
+        startIndex === -1
+          ? history
+          : history.slice(
+              startIndex
+            );
 
-      const index = activeHistory.findIndex((s) => s.month === month);
+      const index =
+        activeHistory.findIndex(
+          (item) =>
+            item.month === month
+        );
 
-      if (index <= 0) return null;
+      if (index <= 0) {
+        return null;
+      }
 
-      const previous = activeHistory[index - 1];
+      const previous =
+        activeHistory[index - 1];
 
-      if (!previous || previous.totalSales === 0) return null;
+      if (
+        !previous ||
+        previous.totalSales === 0
+      ) {
+        return null;
+      }
+
+      const latestMonth =
+        activeHistory[
+          activeHistory.length - 1
+        ]?.month;
 
       const currentSales =
-        store.month === activeHistory[activeHistory.length - 1]?.month
+        store.month === latestMonth
           ? store.forecastSales
           : store.totalSales;
 
       const growth =
-        ((currentSales - previous.totalSales) / previous.totalSales) * 100;
+        ((currentSales -
+          previous.totalSales) /
+          previous.totalSales) *
+        100;
 
       return {
         ...store,
         growth,
       };
     })
-    .filter(Boolean);
-
-  return result;
+    .filter(
+      (
+        item
+      ): item is Store & {
+        growth: number;
+      } => item !== null
+    );
 }
