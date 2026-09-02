@@ -26,6 +26,14 @@ export type Brand = {
 
   makeTime: number;
   makeTimeJudge: string;
+
+  // 注文履歴
+  orderCount: number;
+  completedCount: number;
+  cancelCount: number;
+  failedCount: number;
+  restaurantCancelCount: number;
+  actualPrepTime: number;
 };
 
 export type Store = {
@@ -46,6 +54,14 @@ export type Store = {
 
   averageRating: number;
   commitJudge: string;
+
+  // 注文履歴：店舗TOTAL
+  orderCount: number;
+  completedCount: number;
+  cancelCount: number;
+  failedCount: number;
+  restaurantCancelCount: number;
+  actualPrepTime: number;
 
   brands: Brand[];
 };
@@ -236,6 +252,14 @@ export async function getStoresFromSheet(): Promise<
           )
         ).trim(),
 
+        // 注文履歴：あとでブランドTOTALを集計
+        orderCount: 0,
+        completedCount: 0,
+        cancelCount: 0,
+        failedCount: 0,
+        restaurantCancelCount: 0,
+        actualPrepTime: 0,
+
         brands: [],
       });
     }
@@ -336,6 +360,52 @@ export async function getStoresFromSheet(): Promise<
           "makeTimeJudge"
         )
       ).trim(),
+
+      // -----------------------------
+      // 注文履歴月次データ
+      // -----------------------------
+
+      orderCount: toNumber(
+        getValue(
+          row,
+          "orderCount"
+        )
+      ),
+
+      completedCount: toNumber(
+        getValue(
+          row,
+          "completedCount"
+        )
+      ),
+
+      cancelCount: toNumber(
+        getValue(
+          row,
+          "cancelCount"
+        )
+      ),
+
+      failedCount: toNumber(
+        getValue(
+          row,
+          "failedCount"
+        )
+      ),
+
+      restaurantCancelCount: toNumber(
+        getValue(
+          row,
+          "restaurantCancelCount"
+        )
+      ),
+
+      actualPrepTime: toNumber(
+        getValue(
+          row,
+          "actualPrepTime"
+        )
+      ),
     };
 
     store.brands.push(brand);
@@ -347,6 +417,10 @@ export async function getStoresFromSheet(): Promise<
     );
 
   stores.forEach((store) => {
+    // -----------------------------
+    // PV系
+    // -----------------------------
+
     store.storeViews =
       store.brands.reduce(
         (sum, brand) =>
@@ -375,6 +449,97 @@ export async function getStoresFromSheet(): Promise<
         ? (store.orderUsers /
             store.menuViews) *
           100
+        : 0;
+
+    // -----------------------------
+    // 注文履歴系：店舗TOTAL
+    // -----------------------------
+
+    store.orderCount =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.orderCount,
+        0
+      );
+
+    store.completedCount =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.completedCount,
+        0
+      );
+
+    store.cancelCount =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.cancelCount,
+        0
+      );
+
+    store.failedCount =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum + brand.failedCount,
+        0
+      );
+
+    store.restaurantCancelCount =
+      store.brands.reduce(
+        (sum, brand) =>
+          sum +
+          brand.restaurantCancelCount,
+        0
+      );
+
+    // -----------------------------
+    // 実績平均準備時間
+    //
+    // ブランドごとの平均値を
+    // 単純平均するのではなく、
+    // completed件数で加重平均
+    // -----------------------------
+
+    const prepTimeTotal =
+      store.brands.reduce(
+        (sum, brand) => {
+          if (
+            brand.actualPrepTime <= 0 ||
+            brand.completedCount <= 0
+          ) {
+            return sum;
+          }
+
+          return (
+            sum +
+            brand.actualPrepTime *
+              brand.completedCount
+          );
+        },
+        0
+      );
+
+    const prepTimeCount =
+      store.brands.reduce(
+        (sum, brand) => {
+          if (
+            brand.actualPrepTime <= 0 ||
+            brand.completedCount <= 0
+          ) {
+            return sum;
+          }
+
+          return (
+            sum +
+            brand.completedCount
+          );
+        },
+        0
+      );
+
+    store.actualPrepTime =
+      prepTimeCount > 0
+        ? prepTimeTotal /
+          prepTimeCount
         : 0;
   });
 
