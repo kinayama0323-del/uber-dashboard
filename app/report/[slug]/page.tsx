@@ -88,10 +88,24 @@ function JudgeBadge({
   );
 }
 
+function isRNBrand(brand: any) {
+  return (
+    String(brand?.platform || "").toUpperCase() === "RN" ||
+    String(brand?.brandName || "").endsWith("（RN）") ||
+    String(brand?.brandName || "").endsWith("(RN)")
+  );
+}
+
+function getUberBrands(store: any) {
+  return (store?.brands || []).filter(
+    (brand: any) => !isRNBrand(brand)
+  );
+}
+
 function getQualityJudge(store: any) {
   const ngItems = new Set<string>();
 
-  store.brands.forEach((brand: any) => {
+  getUberBrands(store).forEach((brand: any) => {
     if (brand.rating > 0 && brand.rating < 4.0) {
       ngItems.add("rating");
     }
@@ -138,7 +152,7 @@ function getQualityJudge(store: any) {
 function getImprovementComments(store: any) {
   const comments: string[] = [];
 
-  const activeBrands = store.brands.filter(
+  const activeBrands = getUberBrands(store).filter(
     (brand: any) => brand.sales > 0
   );
 
@@ -263,56 +277,72 @@ export default async function StoreDetailPage({
   );
 
   const businessHoursChartData =
-    history.map((item) => ({
-      month: item.month,
-      value:
-        item.brands.length === 0
-          ? 0
-          : item.brands.reduce(
-              (sum, brand) =>
-                sum + brand.businessHours,
-              0
-            ) / item.brands.length,
-    }));
+    history.map((item) => {
+      const uberBrands = getUberBrands(item);
+
+      return {
+        month: item.month,
+        value:
+          uberBrands.length === 0
+            ? 0
+            : uberBrands.reduce(
+                (sum: number, brand: any) =>
+                  sum + brand.businessHours,
+                0
+              ) / uberBrands.length,
+      };
+    });
 
   const onlineRateChartData =
-    history.map((item) => ({
-      month: item.month,
-      value:
-        item.brands.length === 0
-          ? 0
-          : item.brands.reduce(
-              (sum, brand) =>
-                sum + brand.onlineRate,
-              0
-            ) / item.brands.length,
-    }));
+    history.map((item) => {
+      const uberBrands = getUberBrands(item);
+
+      return {
+        month: item.month,
+        value:
+          uberBrands.length === 0
+            ? 0
+            : uberBrands.reduce(
+                (sum: number, brand: any) =>
+                  sum + brand.onlineRate,
+                0
+              ) / uberBrands.length,
+      };
+    });
 
   const missedRateChartData =
-    history.map((item) => ({
-      month: item.month,
-      value:
-        item.brands.length === 0
-          ? 0
-          : item.brands.reduce(
-              (sum, brand) =>
-                sum + brand.missedRate,
-              0
-            ) / item.brands.length,
-    }));
+    history.map((item) => {
+      const uberBrands = getUberBrands(item);
+
+      return {
+        month: item.month,
+        value:
+          uberBrands.length === 0
+            ? 0
+            : uberBrands.reduce(
+                (sum: number, brand: any) =>
+                  sum + brand.missedRate,
+                0
+              ) / uberBrands.length,
+      };
+    });
 
   const makeTimeChartData =
-    history.map((item) => ({
-      month: item.month,
-      value:
-        item.brands.length === 0
-          ? 0
-          : item.brands.reduce(
-              (sum, brand) =>
-                sum + brand.makeTime,
-              0
-            ) / item.brands.length,
-    }));
+    history.map((item) => {
+      const uberBrands = getUberBrands(item);
+
+      return {
+        month: item.month,
+        value:
+          uberBrands.length === 0
+            ? 0
+            : uberBrands.reduce(
+                (sum: number, brand: any) =>
+                  sum + brand.makeTime,
+                0
+              ) / uberBrands.length,
+      };
+    });
 
   return (
     <main className="min-h-screen bg-gray-100">
@@ -404,7 +434,8 @@ export default async function StoreDetailPage({
               {
                 store.brands.filter(
                   (brand) =>
-                    brand.sales > 0
+                    brand.sales > 0 &&
+                    !isRNBrand(brand)
                 ).length
               }
             </p>
@@ -520,89 +551,127 @@ export default async function StoreDetailPage({
       </thead>
 
       <tbody>
-        {store.brands.map((brand, index) => (
-          <tr key={`${brand.brandName}-${index}`}>
-            <td className="border p-3 font-bold text-gray-950">
-              {brand.brandName}
-            </td>
+        {store.brands.map((brand, index) => {
+          const isRN = isRNBrand(brand);
 
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              ¥{Math.round(brand.sales || 0).toLocaleString()}
-            </td>
+          return (
+            <tr key={`${brand.brandName}-${index}`}>
+              <td className="border p-3 font-bold text-gray-950">
+                {brand.brandName}
+              </td>
 
-            <td className="border p-3 text-center font-semibold text-gray-950">
-              {brand.rating === 0 ? (
-                <span className="text-gray-700">
-                  評価なし
-                </span>
-              ) : (
-                <>
-                  <span className="font-bold text-gray-950">
-                    {brand.rating.toFixed(2)}
-                  </span>{" "}
-                  <JudgeBadge
-                    type="rating"
-                    value={brand.rating}
-                  />
-                </>
-              )}
-            </td>
+              <td className="border p-3 text-right font-semibold text-gray-950">
+                ¥{Math.round(brand.sales || 0).toLocaleString()}
+              </td>
 
-            <td className="border p-3 text-center font-semibold text-gray-950">
-              {brand.businessHours.toFixed(1)}h{" "}
-              <JudgeBadge
-                type="businessHours"
-                value={brand.businessHours}
-              />
-            </td>
+              <td className="border p-3 text-center font-semibold text-gray-950">
+                {isRN ? (
+                  <span className="text-gray-500">―</span>
+                ) : brand.rating === 0 ? (
+                  <span className="text-gray-700">
+                    評価なし
+                  </span>
+                ) : (
+                  <>
+                    <span className="font-bold text-gray-950">
+                      {brand.rating.toFixed(2)}
+                    </span>{" "}
+                    <JudgeBadge
+                      type="rating"
+                      value={brand.rating}
+                    />
+                  </>
+                )}
+              </td>
 
-            <td className="border p-3 text-center font-semibold text-gray-950">
-              {brand.onlineRate.toFixed(2)}%{" "}
-              <JudgeBadge
-                type="onlineRate"
-                value={brand.onlineRate}
-              />
-            </td>
+              <td className="border p-3 text-center font-semibold text-gray-950">
+                {isRN ? (
+                  <span className="text-gray-500">―</span>
+                ) : (
+                  <>
+                    {brand.businessHours.toFixed(1)}h{" "}
+                    <JudgeBadge
+                      type="businessHours"
+                      value={brand.businessHours}
+                    />
+                  </>
+                )}
+              </td>
 
-            <td className="border p-3 text-center font-semibold text-gray-950">
-              {brand.missedRate.toFixed(2)}%{" "}
-              <JudgeBadge
-                type="missedRate"
-                value={brand.missedRate}
-              />
-            </td>
+              <td className="border p-3 text-center font-semibold text-gray-950">
+                {isRN ? (
+                  <span className="text-gray-500">―</span>
+                ) : (
+                  <>
+                    {brand.onlineRate.toFixed(2)}%{" "}
+                    <JudgeBadge
+                      type="onlineRate"
+                      value={brand.onlineRate}
+                    />
+                  </>
+                )}
+              </td>
 
-            <td className="border p-3 text-center font-semibold text-gray-950">
-              {brand.makeTime.toFixed(2)}分{" "}
-              <JudgeBadge
-                type="makeTime"
-                value={brand.makeTime}
-              />
-            </td>
+              <td className="border p-3 text-center font-semibold text-gray-950">
+                {isRN ? (
+                  <span className="text-gray-500">―</span>
+                ) : (
+                  <>
+                    {brand.missedRate.toFixed(2)}%{" "}
+                    <JudgeBadge
+                      type="missedRate"
+                      value={brand.missedRate}
+                    />
+                  </>
+                )}
+              </td>
 
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(
-                brand.storeViews || 0
-              ).toLocaleString()}
-            </td>
+              <td className="border p-3 text-center font-semibold text-gray-950">
+                {isRN ? (
+                  <span className="text-gray-500">―</span>
+                ) : (
+                  <>
+                    {brand.makeTime.toFixed(2)}分{" "}
+                    <JudgeBadge
+                      type="makeTime"
+                      value={brand.makeTime}
+                    />
+                  </>
+                )}
+              </td>
 
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(
-                brand.menuViews || 0
-              ).toLocaleString()}
-            </td>
+              <td className="border p-3 text-right font-semibold text-gray-950">
+                {isRN
+                  ? "―"
+                  : Math.round(
+                      brand.storeViews || 0
+                    ).toLocaleString()}
+              </td>
 
-            <td className="border p-3 text-right font-semibold text-gray-950">
-              {Math.round(
-                brand.orderUsers || 0
-              ).toLocaleString()}
-            </td>
+              <td className="border p-3 text-right font-semibold text-gray-950">
+                {isRN
+                  ? "―"
+                  : Math.round(
+                      brand.menuViews || 0
+                    ).toLocaleString()}
+              </td>
 
-            <td className="border p-3 text-center font-bold text-gray-950">
-              {(brand.clRate || 0).toFixed(2)}%
-            </td>
-          </tr>
-        ))}
+              <td className="border p-3 text-right font-semibold text-gray-950">
+                {isRN
+                  ? "―"
+                  : Math.round(
+                      brand.orderUsers || 0
+                    ).toLocaleString()}
+              </td>
+
+              <td className="border p-3 text-center font-bold text-gray-950">
+                {isRN
+                  ? "―"
+                  : `${(brand.clRate || 0).toFixed(2)}%`}
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   </div>
