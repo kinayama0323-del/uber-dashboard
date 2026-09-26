@@ -314,6 +314,24 @@ export default async function StoreDetailPage({
             ) / item.brands.length,
     }));
 
+  const menuViewsChartData =
+    history.map((item) => ({
+      month: item.month,
+      value: item.menuViews || 0,
+    }));
+
+  const orderUsersChartData =
+    history.map((item) => ({
+      month: item.month,
+      value: item.orderUsers || 0,
+    }));
+
+  const clRateChartData =
+    history.map((item) => ({
+      month: item.month,
+      value: item.clRate || 0,
+    }));
+
   return (
     <main className="min-h-screen bg-gray-100">
       <header className="bg-green-600 p-8 text-white">
@@ -655,6 +673,25 @@ export default async function StoreDetailPage({
             yMin={0}
             referenceValue={10}
             referenceLabel="10分"
+          />
+
+          <StoreTrendChart
+            title="メニュー閲覧数推移"
+            data={menuViewsChartData}
+            yMin={0}
+          />
+
+          <StoreTrendChart
+            title="注文者数推移"
+            data={orderUsersChartData}
+            yMin={0}
+          />
+
+          <StoreTrendChart
+            title="CL率推移"
+            data={clRateChartData}
+            yMin={0}
+            yMax={100}
           />
         </div>
 
