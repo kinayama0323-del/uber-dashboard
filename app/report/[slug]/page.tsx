@@ -155,11 +155,8 @@ function JudgeBadge({
       {label}
 
     </span>
-
   );
-
 }
-
 function getQualityJudge(store: any) {
 
   const ngItems = new Set<string>();
@@ -1158,7 +1155,7 @@ export default async function StoreDetailPage({
 
             yMin={0}
 
-            yMax={100}
+            yMax={20}
 
           />
 
